@@ -3,7 +3,6 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const crypto = require('crypto');
 const mysql = require('mysql');
 const path = require('path');
 const bodyParser = require('body-parser');
