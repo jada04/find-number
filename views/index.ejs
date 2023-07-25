@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Lever Game</title>
+
+    
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/iziToast.min.css">
+
+</head>
+<body style="margin: 0; padding: 0; background: linear-gradient(to left, #1E2E50, #0a1219)!important;">
+
+<style type="text/css">
+.centered-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -0%);
+  font-size: 48px;
+  color: #fff;
+  backdrop-filter: blur(2px); /* Blur efekti */
+  padding: 10px 20px;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+
+.btn-primary{
+  background: linear-gradient(to left, #1E2E50, #0a1219);
+    
+}
+
+.btn-outline-primary{
+  background: transparent;
+
+    
+}
+.btn-check:checked + label.btn {
+  background: linear-gradient(to left, #1E2E50, #0a1219);
+  color: #fff;
+  border-color: #fff;
+
+}
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="information" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background: linear-gradient(to left, #1E2E50, #0a1219);">
+      <div class="modal-header">
+        <h5 class="modal-title text-light" id="exampleModalLabel">Game information</h5>
+        <button type="button" class="btn btn-outline-light border-0" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg text-light"></i></button>
+      </div>
+      <div class="modal-body">
+        
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="container d-flex justify-content-center  mt-3" style="max-width: 550px;  ">
+    <div class="w-100 text-light" >
+        <div class="d-flex justify-content-between">
+           
+           <button class="btn btn-outline-light btn-sm shadow font-monospace border-0" data-bs-toggle="modal" data-bs-target="#information" style="font-size:15px"><i class="bi bi-info-circle"></i></button> 
+           <span class="badge bg-success" style="font-size: 15px; background: linear-gradient(to left, #1E2E50, #0a1219);" id="user_balance" balance_2="<%= balance_2 %>"><%= balance %></span>
+           <button class="btn btn-outline-light border-0 btn-sm" onclick="window.location.href='https://www.viviboss.com/game'" style="font-size:15px"><i class="bi bi-reply-all-fill"></i></button> 
+       </div>
+        
+        <div class="text-center position-relative">
+            <img src="assets/img/logo.png" class="img-fluid" style="position: absolute; left: 0; z-index:-10; ">
+            <img src="assets/img/back.png" class="img-fluid" style="max-width:130px; border:20px">
+            <span class="centered-text" id="counter-time"></span>
+        </div>
+        <p class="font-monospace text-center my-2 display-6"><%= username %></p>
+
+
+        <div class="row text-center my-3 ">
+            <div class="col-4">
+                <input type="radio" class="btn-check" name="number" id="btn_1" autocomplete="off"  value="1">
+                <label class="btn btn-outline-primary neon-button p-3" for="btn_1" style="border-radius: 30px; width: 60px;"><img src="assets/numbers/1.png" class="img-fluid" style="max-width:10px"></label>
+            </div>
+            <div class="col-4">
+                <input type="radio" class="btn-check" name="number" id="btn_2" autocomplete="off" value="2">
+                <label class="btn btn-outline-primary  p-3" for="btn_2" style="border-radius: 30px; width: 60px;"><img src="assets/numbers/2.png" class="img-fluid" style="max-width:10px"></label>
+            </div>
+            <div class="col-4">
+                <input type="radio" class="btn-check" name="number" id="btn_3" autocomplete="off" value="3">
+                <label class="btn btn-outline-primary p-3" for="btn_3" style="border-radius: 30px; width: 60px;"><img src="assets/numbers/3.png" class="img-fluid" style="max-width:10px"></label>
+            </div>
+
+             <div class="col-6 text-center">
+                <input type="radio" class="btn-check" name="number" id="btn_4" autocomplete="off" value="4">
+                <label class="btn btn-outline-primary p-3 " for="btn_4" style="border-radius: 30px; width: 60px;"><img src="assets/numbers/4.png" class="img-fluid" style="max-width:10px"></label>
+            </div>
+
+             <div class="col-6 text-center">
+                <input type="radio" class="btn-check" name="number" id="btn_5" autocomplete="off" value="5">
+                <label class="btn btn-outline-primary p-3 " for="btn_5" style="border-radius: 30px; width: 60px;"><img src="assets/numbers/5.png" class="img-fluid" style="max-width:10px"></label>
+            </div>
+
+        </div>
+
+
+
+        <p class="text-center"><span class="badge rounded-pill bg-secondary" style="background: linear-gradient(to left, #1E2E50, #0a1219); width: 150px;">Bet Enter</span></p>
+        <hr>
+        <div class="row">
+
+            <div class="col-6">
+                <div class="row g-2">
+                    <div class="col-6"><button class="btn btn-primary w-100" data-value="1">+1</button></div>
+                    <div class="col-6"><button class="btn btn-primary w-100" data-value="5">+5</button></div>
+                    <div class="col-12"><button class="btn btn-primary w-100" data-value="10">+10</button></div>
+                </div>
+            </div>
+            
+
+            <div class="col-6">
+                <div class="input-group w-100 mt-4" >
+                    <button class="btn btn-primary" type="button" id="decrement-btn"><i class="bi bi-dash-lg"></i></button>
+                    <input type="tel" class="form-control text-center text-light border border-primary" value="1" style="background: transparent;" id="counter" >
+                    <button class="btn btn-primary" type="button" id="increment-btn"><i class="bi bi-plus-lg"></i></button>
+                </div>
+            </div>
+
+
+
+        </div> 
+
+        <button class="btn btn-success mt-4 w-100" id="join">Join the bet</button>
+
+
+
+
+        <p class="text-center mt-4"><span class="badge rounded-pill bg-secondary" style="background: linear-gradient(to left, #1E2E50, #0a1219); width: 150px;">Transactions</span></p>
+        <hr>
+
+            <div style="height: 350px; overflow-y: auto; margin-bottom: 100px; overflow-x: hidden;" class="mt-2">
+                <div class="row text-center g-3 " id="tranactions">  
+
+              </div>
+        </div>
+
+
+
+
+
+
+   </div> 
+</div>
+
+
+
+
+
+
+<audio id="correct" src="assets/sound/correct.mp3" data-bet="off" preload="auto"></audio>
+<audio id="fiasco" src="assets/sound/fiasco.mp3" data-bet="off" preload="auto"></audio>
+
+
+
+
+
+
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+ <script src="assets/js/iziToast.min.js"></script>
+
+
+    <script type="text/javascript">
+
+
+
+
+      function formatAmountInUSD(amount) {
+          // JavaScript Intl.NumberFormat API'sini kullanarak dolar para birimi biçimini oluşturun
+          const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+          });
+
+          // Fonksiyonu çağırdığınızda bakiyeyi dolar bazında belirtilen formatta döndürün
+          return formatter.format(amount);
+        }
+
+
+                
+               $(document).ready(function() {
+                    $('#join').click(function() {
+                        var amount = $('#counter').val();
+                        var data_bet = $(this).attr("data-bet");
+                        var balance_2 = $("#user_balance").attr("balance_2");
+                        if (data_bet=="on") {
+                            $(this).attr("class","btn btn-success w-100 mt-4").attr("data-bet","off").text("Join the bet");
+
+                            var new_balance =  Number(balance_2) + Number(amount);
+                            $("#user_balance").text(formatAmountInUSD(new_balance));
+                            var balance_2 = $("#user_balance").attr("balance_2",new_balance);
+
+                        }else{
+
+                          if ($('input[name="number"]:checked').length > 0 && amount < balance_2 ) {
+
+                            $(this).attr("class","btn btn-danger w-100 mt-4").attr("data-bet","on").text("leave the bet");
+
+                            var new_balance = Number(balance_2) - Number(amount);
+                            $("#user_balance").text(formatAmountInUSD(new_balance));
+                            var balance_2 = $("#user_balance").attr("balance_2",new_balance);
+                          }
+                          else if(amount > balance_2){
+
+                            message_error("Your Balance is Insufficient Please Top Up Balance!",3000);
+
+                          }
+                           else {
+                            message_error("Please select a number",3000);
+                          }
+
+                        }
+                    });
+                });
+
+
+        function message_success(data,time) {
+        
+          iziToast.success({
+              message: data,
+              timeout:time,
+              position: 'topRight',
+              messageColor: 'white',
+              backgroundColor: 'green',
+              
+          });
+
+      }
+
+      function message_error(data,time) {
+        
+          iziToast.show({
+              message: data,
+              timeout:time,
+              position: 'topRight',
+              messageColor: 'white',
+              backgroundColor: 'red',
+              
+          });
+
+      }
+
+
+
+               
+
+
+
+
+       
+
+
+
+
+
+
+
+        let socket;
+        let userCount = 0;
+        let counter = 0;
+
+        socket = io.connect('http://localhost:3000');
+
+            socket.on('userCount', (data) => {
+                userCount = data;
+                $("#users").text(userCount);
+            });
+
+
+            function check(selectedValue,data) {
+
+
+                            const currentDate = new Date();
+
+                            var amount = $('#counter').val();
+
+
+
+                            const year = currentDate.getFullYear();
+                            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(currentDate.getDate()).padStart(2, '0');
+                            const hours = String(currentDate.getHours()).padStart(2, '0');
+                            const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+                            const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+
+                            const formattedDate = `${day} ${getMonthName(month)} ${year} ${hours}:${minutes}:${seconds}`;
+                            console.log(formattedDate);
+
+                            function getMonthName(monthNumber) {
+                              const monthNames = [
+                                "January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December"
+                              ];
+                              return monthNames[parseInt(monthNumber) - 1];
+                            }
+
+
+
+                            $.ajax({
+                                type:"POST",
+                                url:"/bet",
+                                data:{userid:<%= id %>,bet:selectedValue,finish:data,amount:amount},
+                                success:function (req) {
+
+                                        if (req.status=="success+") {
+                                            message_success(req.message+formatAmountInUSD(amount),4000);
+                                            $("#user_balance").text(req.balance);
+                                            $("#user_balance").attr("balance_2",req.balance_2);
+
+                                            $("#tranactions").prepend('<div class="col-12 d-flex justify-content-between trans shadow " tyle="background: linear-gradient(to left, #1E2E50, #0a1219);"><div class="col-3 mt-2"><img src="https://www.viviboss.com/assets/img/profiles/<%= profil %>" style="max-width:35px;border-radius:30px;" class="img-fluid"></div><div class="col-5 text-light text-start mt-2"><p style="font-size:13px;"><%= username %></p><p style="font-size:10px; margin-top:-12px">'+formattedDate+'</p></div><div class="col-4 fw-bold text-success mt-3"><p>+'+formatAmountInUSD(amount)+'</p></div></div>');
+
+                                        }else if(req.status=="success-"){
+                                            message_error(req.message+formatAmountInUSD(amount),4000);
+                                            $("#user_balance").text(req.balance);
+                                            $("#user_balance").attr("balance_2",req.balance_2);
+
+                                            $("#tranactions").prepend('<div class="col-12 d-flex justify-content-between trans shadow " tyle="background: linear-gradient(to left, #1E2E50, #0a1219);"><div class="col-3 mt-2"><img src="https://www.viviboss.com/assets/img/profiles/<%= profil %>" style="max-width:35px;border-radius:30px;"  class="img-fluid"></div><div class="col-5 text-light text-start mt-2"><p style="font-size:13px;"><%= username %></p><p style="font-size:10px; margin-top:-12px">'+formattedDate+'</p></div><div class="col-4 fw-bold text-danger mt-3"><p>-'+formatAmountInUSD(amount)+'</p></div></div>');
+
+
+                                        }
+                                        else if(req.status=="error"){
+                                            message_error(req.message,4000);
+                                            setTimeout(() => {
+                                              location.reload();
+                                            }, 4000);
+
+                                            $("#user_balance").text(req.balance);
+                                        }
+                                }
+
+                            })
+
+                            
+                            // var amount = $('#counter').val();
+                            // $.ajax({
+                            //     type:"POST",
+                            //     url:"/bet",
+                            //     data:{userid:<%= id %>,bet:selectedValue,finish:data,amount:amount},
+                            //     success:function (req) {
+
+                            //             if (req.status=="success+") {
+                            //                 message_success(req.message+formatAmountInUSD(amount),4000);
+                            //                 $("#user_balance").text(req.balance);
+                            //             }else if(req.status=="success-"){
+                            //                 message_error(req.message+formatAmountInUSD(amount),4000);
+                            //                 $("#user_balance").text(req.balance);
+                            //             }
+                            //             else if(req.status=="error"){
+                            //                 message_error(req.message,4000);
+                            //                 $("#user_balance").text(req.balance);
+                            //             }
+                            //     }
+
+                            // })
+                        
+                        }
+
+
+
+
+            socket.on('finish', (data) => {
+                finish = data;
+                const selectedValue = $('input[name="number"]:checked').val();
+                var bet = $('#counter').val();
+
+                var data_bet = $('#join').attr("data-bet");
+
+                if (data_bet=="on") {
+                    if (selectedValue==data) {
+                        check(selectedValue,data);
+                        $("#correct")[0].play();
+                    }
+                    else{
+
+                        check(selectedValue,data);
+                        $("#fiasco")[0].play();
+
+                    }
+                    $('input[name="number"]').prop('checked', false);
+                    $('#join').attr("class","btn btn-success w-100 mt-4").attr("data-bet","off").text("Join the bet");
+                        
+
+
+                }
+
+
+
+
+            });
+
+            socket.on('counter', (data) => {
+                counter = data;
+                if (counter=="0") {
+                    $("#counter-time").html('<div class="spinner-border" role="status"><span class="visually-hidden"></span></div>');
+                    $('button').attr("disabled","on");
+                    
+                }else{
+                    $('button').removeAttr("disabled");
+                    $("#counter-time").text(counter);
+                }
+                
+            });
+                    
+
+
+
+
+
+
+
+                $(document).ready(function() {
+                    $('#counter').keyup(function() {
+                        // Girilen değeri alalım
+                        var inputValue = $(this).val();
+                        var ths = $(this);
+                        var yuz = 100;
+                        var bos = 1;
+
+                        // Girilen değer boş veya 100'den büyükse değeri 100 yap
+                        if (Number(inputValue) > 100) {
+                            ths.val(yuz);
+                        }else if(inputValue === ""){
+
+                            ths.val(bos);
+
+
+                        } else {
+                            // Girilen değeri sadece rakam içeren bir hale getirelim (diğer karakterleri kaldıralım)
+                            inputValue = inputValue.replace(/\D/g, '');
+                            // Yeniden düzenlenmiş değeri input alanına yazalım
+                            $(this).val(inputValue);
+                        }
+                    });
+                });
+
+
+             $(document).ready(function() {
+                const counterInput = $("#counter");
+                const incrementBtn = $("#increment-btn");
+                const decrementBtn = $("#decrement-btn");
+
+                incrementBtn.click(function() {
+                  let currentValue = parseInt(counterInput.val());
+                  if (currentValue < 100) {
+                    counterInput.val(currentValue + 1);
+                  }
+                });
+
+                decrementBtn.click(function() {
+                  let currentValue = parseInt(counterInput.val());
+                  if (currentValue > 1) {
+                    counterInput.val(currentValue - 1);
+                  }
+                });
+              });
+
+
+             $(document).ready(function() {
+                // Butonlara tıklanma işlemini dinlemek için olay dinleyicisi
+                $("button[data-value]").click(function() {
+                  // Tıklanan butondan alınan değeri alıyoruz
+                  let valueToAdd = parseInt($(this).attr("data-value"));
+                  
+                  // Counter ID'sine sahip inputu seçiyoruz ve değeri artırıyoruz
+                  let counterInput = $("#counter");
+                  let currentValue = parseInt(counterInput.val());
+                  if (currentValue + valueToAdd >100) {
+                    counterInput.val("100");
+                  }else{
+                  counterInput.val(currentValue + valueToAdd);
+                  }
+                });
+              });
+
+
+
+    </script>
+</body>
+</html>
